@@ -10,6 +10,17 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
 </head>
 <body>
+    <div id="menu-container">
+        <button id="menu-btn">Menu</button>
+        <div id="menu" style="display: none;">
+            <label for="background-color">Background Color:</label>
+            <input type="color" id="background-color">
+            <label for="list-name">List Name:</label>
+            <input type="text" id="list-name" placeholder="Enter list name">
+            <button id="save-btn">Save</button>
+        </div>
+    </div>
+
     <div id="login-container">
         <h2>Login</h2>
         <input type="email" id="login-email" placeholder="Email">
@@ -19,7 +30,7 @@
     </div>
 
     <div class="container" style="display: none;">
-        <h1>Todo App</h1>
+        <h1 id="todo-title">Todo App</h1>
         <form id="task-form">
             <input type="text" id="task-input" placeholder="Enter a task">
             <button type="submit">Add Task</button>

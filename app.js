@@ -21,6 +21,29 @@ document.addEventListener('DOMContentLoaded', function() {
     const taskForm = document.getElementById('task-form');
     const taskInput = document.getElementById('task-input');
     const taskList = document.getElementById('task-list');
+    const menuBtn = document.getElementById('menu-btn');
+    const menu = document.getElementById('menu');
+    const backgroundColorInput = document.getElementById('background-color');
+    const listNameInput = document.getElementById('list-name');
+    const saveBtn = document.getElementById('save-btn');
+    const todoTitle = document.getElementById('todo-title');
+
+    menuBtn.addEventListener('click', () => {
+        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    });
+
+    saveBtn.addEventListener('click', () => {
+        const newColor = backgroundColorInput.value;
+        const newName = listNameInput.value;
+
+        if (newColor) {
+            document.body.style.backgroundColor = newColor;
+        }
+
+        if (newName) {
+            todoTitle.textContent = newName;
+        }
+    });
 
     function validateEmail(email) {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
