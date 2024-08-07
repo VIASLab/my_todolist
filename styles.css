@@ -156,14 +156,14 @@ li button.delete-btn:hover {
 
 /* Temas */
 body.theme1 {
-    background: url('./assets/double-bubble-dark.png') no-repeat center center fixed;
+    background: url('./assets/double-bubble-dark.jpg') no-repeat center center fixed;
     background-size: cover;
     --container-bg-color: #ff9800;
     --container-text-color: #fff;
 }
 
 body.theme2 {
-    background: url('./assets/memphis-mini-dark.png') no-repeat center center fixed;
+    background: url('./assets/memphis-mini-dark.jpg') no-repeat center center fixed;
     background-size: cover;
     --container-bg-color: #03a9f4;
     --container-text-color: #000;
