@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const menuBtn = document.getElementById('menu-btn');
     const menu = document.getElementById('menu');
     const themeSelect = document.getElementById('theme-select');
+    const listNameInput = document.getElementById('list-name');
     const saveBtn = document.getElementById('save-btn');
     const todoTitle = document.getElementById('todo-title');
 
@@ -36,8 +37,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     saveBtn.addEventListener('click', () => {
         const selectedTheme = themeSelect.value;
+        const newName = listNameInput.value;
+
         applyTheme(selectedTheme);
         localStorage.setItem('selectedTheme', selectedTheme);
+
+        if (newName) {
+            todoTitle.textContent = newName;
+            localStorage.setItem('listName', newName);
+        }
     });
 
     function applyTheme(theme) {
@@ -214,9 +222,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function loadSettings() {
         const selectedTheme = localStorage.getItem('selectedTheme');
+        const savedName = localStorage.getItem('listName');
+
         if (selectedTheme) {
             applyTheme(selectedTheme);
             themeSelect.value = selectedTheme;
+        }
+
+        if (savedName) {
+            todoTitle.textContent = savedName;
+            listNameInput.value = savedName;
         }
     }
 });
