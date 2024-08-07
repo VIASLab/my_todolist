@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
-import { getFirestore, collection, addDoc, query, where, onSnapshot, orderBy, doc, deleteDoc, updateDoc } from "firebase/firestore";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
+import { getFirestore, collection, addDoc, query, where, onSnapshot, orderBy, doc, deleteDoc, updateDoc, getDoc, setDoc } from "firebase/firestore";
 
 // Configuración de Firebase usando variables de entorno
 const firebaseConfig = {
@@ -26,10 +26,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const themeSelect = document.getElementById('theme-select');
     const listNameInput = document.getElementById('list-name');
     const saveBtn = document.getElementById('save-btn');
+    const logoutBtn = document.getElementById('logout-btn');
     const todoTitle = document.getElementById('todo-title');
-
-    // Cargar configuraciones desde localStorage
-    loadSettings();
 
     menuBtn.addEventListener('click', () => {
         menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
@@ -39,6 +37,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedTheme = themeSelect.value;
         const newName = listNameInput.value;
 
+        if (auth.currentUser) {
+            const userSettingsRef = doc(db, 'userSettings', auth.currentUser.uid);
+            setDoc(userSettingsRef, {
+                selectedTheme,
+                listName: newName
+            }).then(() => {
+                console.log("User settings saved!");
+            }).catch(error => {
+                console.error("Error saving user settings:", error);
+            });
+        }
+
         applyTheme(selectedTheme);
         localStorage.setItem('selectedTheme', selectedTheme);
 
@@ -46,6 +56,16 @@ document.addEventListener('DOMContentLoaded', function() {
             todoTitle.textContent = newName;
             localStorage.setItem('listName', newName);
         }
+    });
+
+    logoutBtn.addEventListener('click', () => {
+        signOut(auth).then(() => {
+            console.log("User logged out");
+            document.getElementById('login-container').style.display = 'block';
+            document.querySelector('.container').style.display = 'none';
+        }).catch(error => {
+            console.error("Error logging out:", error);
+        });
     });
 
     function applyTheme(theme) {
@@ -74,6 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
         signInWithEmailAndPassword(auth, email, password)
             .then(userCredential => {
                 console.log("Logged in:", userCredential.user);
+                getUserSettings();
                 getTasks();
             })
             .catch(error => {
@@ -99,6 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
         createUserWithEmailAndPassword(auth, email, password)
             .then(userCredential => {
                 console.log("Registered:", userCredential.user);
+                getUserSettings();
                 getTasks();
             })
             .catch(error => {
@@ -195,6 +217,22 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
+    function getUserSettings() {
+        const user = auth.currentUser;
+        const userSettingsRef = doc(db, 'userSettings', user.uid);
+        getDoc(userSettingsRef).then(docSnap => {
+            if (docSnap.exists()) {
+                const settings = docSnap.data();
+                applyTheme(settings.selectedTheme);
+                todoTitle.textContent = settings.listName;
+                themeSelect.value = settings.selectedTheme;
+                listNameInput.value = settings.listName;
+            }
+        }).catch(error => {
+            console.error("Error fetching user settings:", error);
+        });
+    }
+
     taskForm.addEventListener('submit', function(e) {
         e.preventDefault();
         const taskText = taskInput.value;
@@ -209,6 +247,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log("User logged in:", user);
             document.getElementById('login-container').style.display = 'none';
             document.querySelector('.container').style.display = 'block';
+            getUserSettings();
             getTasks();
         } else {
             console.log("No user is logged in");
