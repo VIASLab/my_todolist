@@ -2,15 +2,15 @@ import { initializeApp } from "firebase/app";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, collection, addDoc, query, where, onSnapshot, orderBy, doc, deleteDoc } from "firebase/firestore";
 
-// Configuración de Firebase - Reemplaza los valores con tu configuración real
+// Configuración de Firebase usando variables de entorno
 const firebaseConfig = {
-    apiKey: "AIzaSyC8qvjuBX7QNZMHnl7_OixcB-nNlBMD72g",
-    authDomain: "todolist-fe780.firebaseapp.com",
-    projectId: "todolist-fe780",
-    storageBucket: "todolist-fe780.appspot.com",
-    messagingSenderId: "151509889751",
-    appId: "1:151509889751:web:6759cb0d879818f608b692"
-  };
+    apiKey: import.meta.env.VITE_API_KEY,
+    authDomain: import.meta.env.VITE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_APP_ID
+};
 
 // Inicializa Firebase
 const app = initializeApp(firebaseConfig);
@@ -22,9 +22,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const taskInput = document.getElementById('task-input');
     const taskList = document.getElementById('task-list');
 
+    function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(String(email).toLowerCase());
+    }
+
     function login() {
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-password').value;
+
+        if (!validateEmail(email)) {
+            alert("Invalid email format");
+            return;
+        }
+
+        if (password.length < 6) {
+            alert("Password must be at least 6 characters long");
+            return;
+        }
+
         signInWithEmailAndPassword(auth, email, password)
             .then(userCredential => {
                 console.log("Logged in:", userCredential.user);
@@ -32,12 +48,24 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error("Error logging in:", error);
+                alert(error.message);
             });
     }
 
     function register() {
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-password').value;
+
+        if (!validateEmail(email)) {
+            alert("Invalid email format");
+            return;
+        }
+
+        if (password.length < 6) {
+            alert("Password must be at least 6 characters long");
+            return;
+        }
+
         createUserWithEmailAndPassword(auth, email, password)
             .then(userCredential => {
                 console.log("Registered:", userCredential.user);
@@ -45,12 +73,13 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error("Error registering:", error);
+                alert(error.message);
             });
     }
 
     function saveTask(task) {
         const user = auth.currentUser;
-        addDoc(collection(db, 'tasks'), {  // Cambiado a 'tasks'
+        addDoc(collection(db, 'tasks'), {
             userId: user.uid,
             task: task,
             completed: false,
@@ -64,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function getTasks() {
         const user = auth.currentUser;
-        const q = query(collection(db, 'tasks'), where('userId', '==', user.uid), orderBy('createdAt', 'desc'));  // Cambiado a 'tasks'
+        const q = query(collection(db, 'tasks'), where('userId', '==', user.uid), orderBy('createdAt', 'desc'));
         onSnapshot(q, snapshot => {
             const tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             renderTasks(tasks);
@@ -91,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function deleteTask(taskId) {
-        deleteDoc(doc(db, 'tasks', taskId))  // Cambiado a 'tasks'
+        deleteDoc(doc(db, 'tasks', taskId))
             .then(() => {
                 console.log("Task deleted!");
             })
