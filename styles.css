@@ -139,3 +139,7 @@ li button.delete-btn:hover {
 #save-btn:hover {
     background-color: #218838;
 }
+
+#menu-btn i {
+    margin-right: 5px;
+}

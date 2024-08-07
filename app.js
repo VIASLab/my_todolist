@@ -38,12 +38,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (newColor) {
             document.body.style.backgroundColor = newColor;
+            adjustContrast(newColor);
         }
 
         if (newName) {
             todoTitle.textContent = newName;
         }
     });
+
+    function adjustContrast(hex) {
+        const rgb = hexToRgb(hex);
+        const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
+        const textColor = brightness > 128 ? '#000' : '#fff';
+        document.body.style.color = textColor;
+    }
+
+    function hexToRgb(hex) {
+        const bigint = parseInt(hex.slice(1), 16);
+        const r = (bigint >> 16) & 255;
+        const g = (bigint >> 8) & 255;
+        const b = bigint & 255;
+        return { r, g, b };
+    }
 
     function validateEmail(email) {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
