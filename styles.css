@@ -170,7 +170,7 @@ body.theme2 {
 }
 
 body.theme3 {
-    background: url('./assets/food.png') no-repeat center center fixed;
+    background: url('./assets/food.jpg') no-repeat center center fixed;
     background-size: cover;
     --container-bg-color: #8bc34a;
     --container-text-color: #000;
