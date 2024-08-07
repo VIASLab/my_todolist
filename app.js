@@ -28,6 +28,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const saveBtn = document.getElementById('save-btn');
     const todoTitle = document.getElementById('todo-title');
 
+    // Cargar configuraciones desde localStorage
+    loadSettings();
+
     menuBtn.addEventListener('click', () => {
         menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
     });
@@ -39,10 +42,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (newColor) {
             document.body.style.backgroundColor = newColor;
             adjustContrast(newColor);
+            localStorage.setItem('backgroundColor', newColor);
         }
 
         if (newName) {
             todoTitle.textContent = newName;
+            localStorage.setItem('listName', newName);
         }
     });
 
@@ -233,4 +238,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('login-btn').addEventListener('click', login);
     document.getElementById('register-btn').addEventListener('click', register);
+
+    function loadSettings() {
+        const savedColor = localStorage.getItem('backgroundColor');
+        const savedName = localStorage.getItem('listName');
+
+        if (savedColor) {
+            document.body.style.backgroundColor = savedColor;
+            adjustContrast(savedColor);
+            backgroundColorInput.value = savedColor;
+        }
+
+        if (savedName) {
+            todoTitle.textContent = savedName;
+            listNameInput.value = savedName;
+        }
+    }
 });
