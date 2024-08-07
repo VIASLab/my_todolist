@@ -76,6 +76,10 @@ li.completed span {
     color: #999;
 }
 
+li input[type="checkbox"] {
+    margin-right: 10px;
+}
+
 li button {
     background-color: #dc3545;
 }
