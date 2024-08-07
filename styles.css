@@ -80,10 +80,19 @@ li input[type="checkbox"] {
     margin-right: 10px;
 }
 
-li button {
+li button.delete-btn {
     background-color: #dc3545;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
 }
 
-li button:hover {
+li button.delete-btn:hover {
     background-color: #c82333;
 }

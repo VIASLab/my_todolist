@@ -123,8 +123,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 taskItem.className = checkbox.checked ? 'completed' : '';
             });
 
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'X';
+            deleteButton.className = 'delete-btn';
+            deleteButton.addEventListener('click', () => {
+                deleteTask(task.id);
+            });
+
             taskItem.appendChild(checkbox);
             taskItem.appendChild(taskName);
+            taskItem.appendChild(deleteButton);
             taskList.appendChild(taskItem);
         });
     }
