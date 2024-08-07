@@ -4,7 +4,9 @@
   "description": "A simple todo app using Firebase",
   "main": "index.js",
   "scripts": {
-    "dev": "vite"
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
   },
   "author": "Tu Nombre",
   "license": "ISC",
