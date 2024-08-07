@@ -177,14 +177,14 @@ body.theme3 {
 }
 
 body.theme4 {
-    background: url('https://www.toptal.com/designers/subtlepatterns/patterns/tiny-grid.png') no-repeat center center fixed;
+    background: url('https://www.toptal.com/designers/subtlepatterns/patterns/tiny-grid.jpg') no-repeat center center fixed;
     background-size: cover;
     --container-bg-color: #e91e63;
     --container-text-color: #fff;
 }
 
 body.theme5 {
-    background: url('https://www.toptal.com/designers/subtlepatterns/patterns/diagonal-lines.png') no-repeat center center fixed;
+    background: url('https://www.toptal.com/designers/subtlepatterns/patterns/diagonal-lines.jpg') no-repeat center center fixed;
     background-size: cover;
     --container-bg-color: #9c27b0;
     --container-text-color: #fff;
