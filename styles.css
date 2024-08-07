@@ -71,6 +71,11 @@ li {
     align-items: center;
 }
 
+li.completed span {
+    text-decoration: line-through;
+    color: #999;
+}
+
 li button {
     background-color: #dc3545;
 }

@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
-import { getFirestore, collection, addDoc, query, where, onSnapshot, orderBy, doc, deleteDoc } from "firebase/firestore";
+import { getFirestore, collection, addDoc, query, where, onSnapshot, orderBy, doc, deleteDoc, updateDoc } from "firebase/firestore";
 
 // Configuración de Firebase usando variables de entorno
 const firebaseConfig = {
@@ -106,7 +106,22 @@ document.addEventListener('DOMContentLoaded', function() {
         taskList.innerHTML = '';
         tasks.forEach(task => {
             const taskItem = document.createElement('li');
-            taskItem.textContent = task.task;
+            taskItem.className = task.completed ? 'completed' : '';
+
+            const taskName = document.createElement('span');
+            taskName.textContent = task.task;
+            taskName.contentEditable = true;
+            taskName.addEventListener('blur', () => {
+                updateTaskName(task.id, taskName.textContent);
+            });
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = task.completed;
+            checkbox.addEventListener('change', () => {
+                updateTaskStatus(task.id, checkbox.checked);
+                taskItem.className = checkbox.checked ? 'completed' : '';
+            });
 
             const deleteButton = document.createElement('button');
             deleteButton.textContent = 'Delete';
@@ -114,8 +129,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 deleteTask(task.id);
             });
 
+            taskItem.appendChild(checkbox);
+            taskItem.appendChild(taskName);
             taskItem.appendChild(deleteButton);
             taskList.appendChild(taskItem);
+        });
+    }
+
+    function updateTaskName(taskId, newName) {
+        const taskDoc = doc(db, 'tasks', taskId);
+        updateDoc(taskDoc, { task: newName }).then(() => {
+            console.log("Task name updated!");
+        }).catch(error => {
+            console.error("Error updating task name:", error);
+        });
+    }
+
+    function updateTaskStatus(taskId, completed) {
+        const taskDoc = doc(db, 'tasks', taskId);
+        updateDoc(taskDoc, { completed: completed }).then(() => {
+            console.log("Task status updated!");
+        }).catch(error => {
+            console.error("Error updating task status:", error);
         });
     }
 
