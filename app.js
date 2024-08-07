@@ -23,8 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const taskList = document.getElementById('task-list');
     const menuBtn = document.getElementById('menu-btn');
     const menu = document.getElementById('menu');
-    const backgroundColorInput = document.getElementById('background-color');
-    const listNameInput = document.getElementById('list-name');
+    const themeSelect = document.getElementById('theme-select');
     const saveBtn = document.getElementById('save-btn');
     const todoTitle = document.getElementById('todo-title');
 
@@ -36,39 +35,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     saveBtn.addEventListener('click', () => {
-        const newColor = backgroundColorInput.value;
-        const newName = listNameInput.value;
-
-        if (newColor) {
-            document.body.style.backgroundColor = newColor;
-            adjustContrast(newColor);
-            localStorage.setItem('backgroundColor', newColor);
-        }
-
-        if (newName) {
-            todoTitle.textContent = newName;
-            localStorage.setItem('listName', newName);
-        }
+        const selectedTheme = themeSelect.value;
+        applyTheme(selectedTheme);
+        localStorage.setItem('selectedTheme', selectedTheme);
     });
 
-    function adjustContrast(hex) {
-        const rgb = hexToRgb(hex);
-        const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
-        const textColor = brightness > 128 ? '#000' : '#fff';
-        const containerBgColor = brightness > 128 ? '#fff' : '#333';
-        const containerTextColor = brightness > 128 ? '#000' : '#fff';
-
-        document.documentElement.style.setProperty('--container-bg-color', containerBgColor);
-        document.documentElement.style.setProperty('--container-text-color', containerTextColor);
-        document.body.style.color = textColor;
-    }
-
-    function hexToRgb(hex) {
-        const bigint = parseInt(hex.slice(1), 16);
-        const r = (bigint >> 16) & 255;
-        const g = (bigint >> 8) & 255;
-        const b = bigint & 255;
-        return { r, g, b };
+    function applyTheme(theme) {
+        document.body.className = theme;
     }
 
     function validateEmail(email) {
@@ -240,18 +213,10 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('register-btn').addEventListener('click', register);
 
     function loadSettings() {
-        const savedColor = localStorage.getItem('backgroundColor');
-        const savedName = localStorage.getItem('listName');
-
-        if (savedColor) {
-            document.body.style.backgroundColor = savedColor;
-            adjustContrast(savedColor);
-            backgroundColorInput.value = savedColor;
-        }
-
-        if (savedName) {
-            todoTitle.textContent = savedName;
-            listNameInput.value = savedName;
+        const selectedTheme = localStorage.getItem('selectedTheme');
+        if (selectedTheme) {
+            applyTheme(selectedTheme);
+            themeSelect.value = selectedTheme;
         }
     }
 });

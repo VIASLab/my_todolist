@@ -8,28 +8,33 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
+    transition: background-color 0.5s ease;
+    --container-bg-color: #fff;
+    --container-text-color: #000;
 }
 
 h1, h2 {
-    color: #333;
+    color: var(--container-text-color);
 }
 
 .container {
-    background-color: var(--container-bg-color, #fff);
-    color: var(--container-text-color, #000);
+    background-color: var(--container-bg-color);
+    color: var(--container-text-color);
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     width: 300px;
+    transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 #login-container {
-    background-color: var(--container-bg-color, #fff);
-    color: var(--container-text-color, #000);
+    background-color: var(--container-bg-color);
+    color: var(--container-text-color);
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     width: 300px;
+    transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 form {
@@ -42,6 +47,8 @@ input[type="email"], input[type="password"], input[type="text"] {
     margin-bottom: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
+    color: var(--container-text-color);
+    background-color: var(--container-bg-color);
 }
 
 button {
@@ -71,6 +78,8 @@ li {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    color: var(--container-text-color);
+    background-color: var(--container-bg-color);
 }
 
 li.completed span {
@@ -129,7 +138,7 @@ li button.delete-btn:hover {
     margin-top: 10px;
 }
 
-#menu input[type="color"], #menu input[type="text"] {
+#menu input[type="color"], #menu input[type="text"], #menu select {
     margin-top: 5px;
 }
 
@@ -144,4 +153,35 @@ li button.delete-btn:hover {
 
 #menu-btn i {
     margin-right: 5px;
+}
+
+/* Temas */
+body.theme1 {
+    background: url('https://www.toptal.com/designers/subtlepatterns/patterns/double-bubble-dark.png');
+    --container-bg-color: #ff9800;
+    --container-text-color: #fff;
+}
+
+body.theme2 {
+    background: url('https://www.toptal.com/designers/subtlepatterns/patterns/memphis-mini-dark.png');
+    --container-bg-color: #03a9f4;
+    --container-text-color: #000;
+}
+
+body.theme3 {
+    background: url('https://www.toptal.com/designers/subtlepatterns/patterns/food.png');
+    --container-bg-color: #8bc34a;
+    --container-text-color: #000;
+}
+
+body.theme4 {
+    background: url('https://www.toptal.com/designers/subtlepatterns/patterns/tiny-grid.png');
+    --container-bg-color: #e91e63;
+    --container-text-color: #fff;
+}
+
+body.theme5 {
+    background: url('https://www.toptal.com/designers/subtlepatterns/patterns/diagonal-lines.png');
+    --container-bg-color: #9c27b0;
+    --container-text-color: #fff;
 }
