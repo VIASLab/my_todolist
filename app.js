@@ -50,6 +50,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const rgb = hexToRgb(hex);
         const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
         const textColor = brightness > 128 ? '#000' : '#fff';
+        const containerBgColor = brightness > 128 ? '#fff' : '#333';
+        const containerTextColor = brightness > 128 ? '#000' : '#fff';
+
+        document.documentElement.style.setProperty('--container-bg-color', containerBgColor);
+        document.documentElement.style.setProperty('--container-text-color', containerTextColor);
         document.body.style.color = textColor;
     }
 
