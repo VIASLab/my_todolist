@@ -25,12 +25,31 @@ document.addEventListener('DOMContentLoaded', function() {
     const menu = document.getElementById('menu');
     const themeSelect = document.getElementById('theme-select');
     const listNameInput = document.getElementById('list-name');
+    const createListBtn = document.getElementById('create-list-btn');
+    const listSelector = document.getElementById('list-selector');
     const saveBtn = document.getElementById('save-btn');
     const logoutBtn = document.getElementById('logout-btn');
     const todoTitle = document.getElementById('todo-title');
 
+    let currentListId = null;
+
     menuBtn.addEventListener('click', () => {
         menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    });
+
+    createListBtn.addEventListener('click', () => {
+        const newName = listNameInput.value.trim();
+        if (newName && auth.currentUser) {
+            createList(newName);
+            listNameInput.value = '';
+        }
+    });
+
+    listSelector.addEventListener('change', () => {
+        currentListId = listSelector.value;
+        const selectedListName = listSelector.options[listSelector.selectedIndex].text;
+        todoTitle.textContent = selectedListName;
+        getTasks(currentListId);
     });
 
     saveBtn.addEventListener('click', () => {
@@ -94,8 +113,8 @@ document.addEventListener('DOMContentLoaded', function() {
         signInWithEmailAndPassword(auth, email, password)
             .then(userCredential => {
                 console.log("Logged in:", userCredential.user);
+                loadLists();
                 getUserSettings();
-                getTasks();
             })
             .catch(error => {
                 console.error("Error logging in:", error);
@@ -120,8 +139,8 @@ document.addEventListener('DOMContentLoaded', function() {
         createUserWithEmailAndPassword(auth, email, password)
             .then(userCredential => {
                 console.log("Registered:", userCredential.user);
+                loadLists();
                 getUserSettings();
-                getTasks();
             })
             .catch(error => {
                 console.error("Error registering:", error);
@@ -129,12 +148,57 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
+    function createList(name) {
+        const user = auth.currentUser;
+        addDoc(collection(db, 'lists'), {
+            name: name,
+            userId: user.uid,
+            createdAt: new Date()
+        }).then(docRef => {
+            console.log("List created with ID: ", docRef.id);
+            loadLists();
+        }).catch(error => {
+            console.error("Error creating list:", error);
+        });
+    }
+
+    function loadLists() {
+        const user = auth.currentUser;
+        const q = query(collection(db, 'lists'), where('userId', '==', user.uid), orderBy('createdAt', 'asc'));
+        onSnapshot(q, snapshot => {
+            const lists = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderLists(lists);
+        }, error => {
+            console.error("Error fetching lists:", error);
+        });
+    }
+
+    function renderLists(lists) {
+        listSelector.innerHTML = '';
+        lists.forEach(list => {
+            const option = document.createElement('option');
+            option.value = list.id;
+            option.textContent = list.name;
+            listSelector.appendChild(option);
+        });
+
+        // Auto-select the first list and load its tasks
+        if (lists.length > 0) {
+            listSelector.value = lists[0].id;
+            currentListId = lists[0].id;
+            todoTitle.textContent = lists[0].name;
+            getTasks(currentListId);
+        }
+    }
+
     function saveTask(task) {
         const user = auth.currentUser;
         addDoc(collection(db, 'tasks'), {
             userId: user.uid,
+            listId: currentListId,
             task: task,
             completed: false,
+            order: taskList.children.length,
             createdAt: new Date()
         }).then(() => {
             console.log("Task saved!");
@@ -143,9 +207,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function getTasks() {
+    function getTasks(listId) {
         const user = auth.currentUser;
-        const q = query(collection(db, 'tasks'), where('userId', '==', user.uid), orderBy('createdAt', 'desc'));
+        const q = query(collection(db, 'tasks'), where('userId', '==', user.uid), where('listId', '==', listId), orderBy('order', 'asc'));
         onSnapshot(q, snapshot => {
             const tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             renderTasks(tasks);
@@ -160,6 +224,12 @@ document.addEventListener('DOMContentLoaded', function() {
         tasks.forEach(task => {
             const taskItem = document.createElement('li');
             taskItem.className = task.completed ? 'completed' : '';
+            taskItem.draggable = true;
+            taskItem.dataset.id = task.id;
+
+            taskItem.addEventListener('dragstart', handleDragStart);
+            taskItem.addEventListener('dragover', handleDragOver);
+            taskItem.addEventListener('drop', handleDrop);
 
             const taskName = document.createElement('span');
             taskName.textContent = task.task;
@@ -174,7 +244,7 @@ document.addEventListener('DOMContentLoaded', function() {
             checkbox.addEventListener('change', () => {
                 updateTaskStatus(task.id, checkbox.checked);
                 taskItem.className = checkbox.checked ? 'completed' : '';
-                checkAllTasksCompleted(tasks); // Verifica si todas las tareas están completadas
+                checkAllTasksCompleted(tasks);
             });
 
             const deleteButton = document.createElement('button');
@@ -188,6 +258,49 @@ document.addEventListener('DOMContentLoaded', function() {
             taskItem.appendChild(taskName);
             taskItem.appendChild(deleteButton);
             taskList.appendChild(taskItem);
+        });
+    }
+
+    function handleDragStart(event) {
+        event.dataTransfer.setData('text/plain', event.target.dataset.id);
+    }
+
+    function handleDragOver(event) {
+        event.preventDefault();
+    }
+
+    function handleDrop(event) {
+        event.preventDefault();
+        const draggedTaskId = event.dataTransfer.getData('text/plain');
+        const targetTaskId = event.currentTarget.dataset.id;
+
+        if (draggedTaskId !== targetTaskId) {
+            const draggedTask = document.querySelector(`[data-id='${draggedTaskId}']`);
+            const targetTask = document.querySelector(`[data-id='${targetTaskId}']`);
+            const allTasks = [...taskList.querySelectorAll('li')];
+            const draggedIndex = allTasks.indexOf(draggedTask);
+            const targetIndex = allTasks.indexOf(targetTask);
+
+            if (draggedIndex > targetIndex) {
+                taskList.insertBefore(draggedTask, targetTask);
+            } else {
+                taskList.insertBefore(draggedTask, targetTask.nextSibling);
+            }
+
+            updateTaskOrder();
+        }
+    }
+
+    function updateTaskOrder() {
+        const allTasks = taskList.querySelectorAll('li');
+        allTasks.forEach((taskItem, index) => {
+            const taskId = taskItem.dataset.id;
+            const taskDoc = doc(db, 'tasks', taskId);
+            updateDoc(taskDoc, { order: index }).then(() => {
+                console.log("Task order updated!");
+            }).catch(error => {
+                console.error("Error updating task order:", error);
+            });
         });
     }
 
@@ -269,7 +382,7 @@ document.addEventListener('DOMContentLoaded', function() {
     taskForm.addEventListener('submit', function(e) {
         e.preventDefault();
         const taskText = taskInput.value;
-        if (taskText) {
+        if (taskText && currentListId) {
             saveTask(taskText);
             taskInput.value = '';
         }
@@ -280,17 +393,14 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log("User logged in:", user);
             document.getElementById('login-container').style.display = 'none';
             document.querySelector('.container').style.display = 'block';
+            loadLists();
             getUserSettings();
-            getTasks();
         } else {
             console.log("No user is logged in");
             document.getElementById('login-container').style.display = 'block';
             document.querySelector('.container').style.display = 'none';
         }
     });
-
-    document.getElementById('login-btn').addEventListener('click', login);
-    document.getElementById('register-btn').addEventListener('click', register);
 
     function loadSettings() {
         const selectedTheme = localStorage.getItem('selectedTheme');

@@ -1,191 +1,73 @@
-/* Estilos generales */
 body {
     font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
     margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    transition: background 0.5s ease, background-color 0.5s ease;
-    --container-bg-color: #fff;
-    --container-text-color: #000;
-}
-
-h1, h2 {
-    color: var(--container-text-color);
+    padding: 20px;
 }
 
 .container {
-    background-color: var(--container-bg-color);
-    color: var(--container-text-color);
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 300px;
-    transition: background-color 0.5s ease, color 0.5s ease;
+    max-width: 400px;
+    margin: 0 auto;
 }
 
-#login-container {
-    background-color: var(--container-bg-color);
-    color: var(--container-text-color);
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 300px;
-    transition: background-color 0.5s ease, color 0.5s ease;
-}
-
-form {
-    display: flex;
-    flex-direction: column;
-}
-
-input[type="email"], input[type="password"], input[type="text"] {
+#task-list li {
+    list-style: none;
     padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    color: var(--container-text-color);
-    background-color: var(--container-bg-color);
-}
-
-button {
-    padding: 10px;
-    border: none;
-    border-radius: 4px;
-    background-color: #007bff;
-    color: #fff;
-    cursor: pointer;
-    margin-bottom: 10px;
-}
-
-button:hover {
-    background-color: #0056b3;
-}
-
-ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-li {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-bottom: 10px;
+    margin: 5px 0;
+    background: #fff;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: var(--container-text-color);
-    background-color: var(--container-bg-color);
+    border-radius: 4px;
+    cursor: grab;
 }
 
-li.completed span {
+#task-list li.completed {
     text-decoration: line-through;
     color: #999;
 }
 
-li input[type="checkbox"] {
+#task-list li span {
+    flex: 1;
+    margin: 0 10px;
+    cursor: text;
+}
+
+#task-list li input[type="checkbox"] {
     margin-right: 10px;
 }
 
-li button.delete-btn {
-    background-color: #dc3545;
-    color: #fff;
+.delete-btn {
+    background-color: #e74c3c;
+    color: white;
     border: none;
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     cursor: pointer;
+    padding: 0 10px;
 }
 
-li button.delete-btn:hover {
-    background-color: #c82333;
+.delete-btn:hover {
+    background-color: #c0392b;
 }
 
-/* Estilos para el menú */
-#menu-container {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-}
-
-#menu-btn {
-    padding: 10px;
-    border: none;
-    border-radius: 4px;
-    background-color: #007bff;
-    color: #fff;
-    cursor: pointer;
-}
-
-#menu {
-    background-color: #fff;
-    padding: 10px;
-    border-radius: 4px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin-top: 10px;
-    display: flex;
-    flex-direction: column;
-}
-
-#menu label {
-    margin-top: 10px;
-}
-
-#menu input[type="color"], #menu input[type="text"], #menu select {
-    margin-top: 5px;
-}
-
-#save-btn {
-    margin-top: 10px;
-    background-color: #28a745;
-}
-
-#save-btn:hover {
-    background-color: #218838;
-}
-
-#menu-btn i {
-    margin-right: 5px;
-}
-
-/* Temas */
+/* Temas personalizados */
 body.theme1 {
-    background: url('./assets/double-bubble-dark.jpg') no-repeat center center fixed;
-    background-size: cover;
-    --container-bg-color: #ff9800;
-    --container-text-color: #fff;
+    background-color: #ffffff;
 }
 
 body.theme2 {
-    background: url('./assets/memphis-mini-dark.jpg') no-repeat center center fixed;
-    background-size: cover;
-    --container-bg-color: #03a9f4;
-    --container-text-color: #000;
+    background-color: #333;
+    color: #ffffff;
 }
 
 body.theme3 {
-    background: url('./assets/food.jpg') no-repeat center center fixed;
-    background-size: cover;
-    --container-bg-color: #8bc34a;
-    --container-text-color: #000;
+    background-color: #f0f0f0;
 }
 
 body.theme4 {
-    background: url('./assets/tiny-grid.jpg') no-repeat center center fixed;
-    background-size: cover;
-    --container-bg-color: #e91e63;
-    --container-text-color: #fff;
+    background-color: #f8f8f8;
 }
 
 body.theme5 {
-    background: url('./assets/diagonal-lines.jpg') no-repeat center center fixed;
-    background-size: cover;
-    --container-bg-color: #9c27b0;
-    --container-text-color: #fff;
+    background-color: #e7ffe7;
 }
