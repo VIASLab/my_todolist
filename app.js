@@ -1,17 +1,17 @@
-// Configuración de Firebase usando variables de entorno
+// Configuración de Firebase
 const firebaseConfig = {
-    apiKey: import.meta.env.VITE_API_KEY,
-    authDomain: import.meta.env.VITE_AUTH_DOMAIN,
-    projectId: import.meta.env.VITE_PROJECT_ID,
-    storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
-    messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
-    appId: import.meta.env.VITE_APP_ID
+    apiKey: "TU_API_KEY",
+    authDomain: "TU_AUTH_DOMAIN",
+    projectId: "TU_PROJECT_ID",
+    storageBucket: "TU_STORAGE_BUCKET",
+    messagingSenderId: "TU_MESSAGING_SENDER_ID",
+    appId: "TU_APP_ID"
 };
 
 // Inicializa Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 document.addEventListener('DOMContentLoaded', function() {
     const taskForm = document.getElementById('task-form');
@@ -29,10 +29,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let currentListId = null;
 
+    // Toggle para mostrar y ocultar el menú
     menuBtn.addEventListener('click', () => {
         menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
     });
 
+    // Crear nueva lista
     createListBtn.addEventListener('click', () => {
         const newName = listNameInput.value.trim();
         if (newName && auth.currentUser) {
@@ -41,6 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Cambiar la lista seleccionada
     listSelector.addEventListener('change', () => {
         currentListId = listSelector.value;
         const selectedListName = listSelector.options[listSelector.selectedIndex].text;
@@ -48,6 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
         getTasks(currentListId);
     });
 
+    // Guardar configuración del usuario
     saveBtn.addEventListener('click', () => {
         const selectedTheme = themeSelect.value;
         const newName = listNameInput.value;
@@ -73,6 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Cerrar sesión
     logoutBtn.addEventListener('click', () => {
         auth.signOut().then(() => {
             console.log("User logged out");
@@ -83,15 +88,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Aplicar el tema seleccionado
     function applyTheme(theme) {
         document.body.className = theme;
     }
 
+    // Validar formato de correo electrónico
     function validateEmail(email) {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return re.test(String(email).toLowerCase());
     }
 
+    // Iniciar sesión
     function login() {
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-password').value;
@@ -118,6 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
+    // Registrar un nuevo usuario
     function register() {
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-password').value;
@@ -144,6 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
+    // Crear una nueva lista
     function createList(name) {
         const user = auth.currentUser;
         db.collection('lists').add({
@@ -158,6 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Cargar listas desde Firestore
     function loadLists() {
         const user = auth.currentUser;
         const q = db.collection('lists')
@@ -171,6 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Renderizar listas en el selector
     function renderLists(lists) {
         listSelector.innerHTML = '';
         lists.forEach(list => {
@@ -180,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
             listSelector.appendChild(option);
         });
 
-        // Auto-select the first list and load its tasks
+        // Auto-seleccionar la primera lista y cargar sus tareas
         if (lists.length > 0) {
             listSelector.value = lists[0].id;
             currentListId = lists[0].id;
@@ -189,6 +201,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Guardar tarea en Firestore
     function saveTask(task) {
         const user = auth.currentUser;
         db.collection('tasks').add({
@@ -205,6 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Obtener tareas de una lista específica
     function getTasks(listId) {
         const user = auth.currentUser;
         const q = db.collection('tasks')
@@ -220,6 +234,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Renderizar tareas en la interfaz
     function renderTasks(tasks) {
         taskList.innerHTML = '';
         tasks.forEach(task => {
@@ -262,6 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Manejar arrastrar y soltar de tareas
     function handleDragStart(event) {
         event.dataTransfer.setData('text/plain', event.target.dataset.id);
     }
@@ -292,6 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Actualizar orden de las tareas en Firestore
     function updateTaskOrder() {
         const allTasks = taskList.querySelectorAll('li');
         allTasks.forEach((taskItem, index) => {
@@ -305,6 +322,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Verificar si todas las tareas están completadas
     function checkAllTasksCompleted(tasks) {
         const allCompleted = tasks.every(task => task.completed);
         if (allCompleted && tasks.length > 0) {
@@ -312,6 +330,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Lanzar confetti cuando todas las tareas estén completadas
     function launchConfetti() {
         const duration = 5 * 1000;
         const end = Date.now() + duration;
@@ -336,6 +355,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })();
     }
 
+    // Actualizar nombre de la tarea en Firestore
     function updateTaskName(taskId, newName) {
         const taskDoc = db.collection('tasks').doc(taskId);
         taskDoc.update({ task: newName }).then(() => {
@@ -345,6 +365,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Actualizar estado de la tarea en Firestore
     function updateTaskStatus(taskId, completed) {
         const taskDoc = db.collection('tasks').doc(taskId);
         taskDoc.update({ completed: completed }).then(() => {
@@ -354,6 +375,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Eliminar tarea de Firestore
     function deleteTask(taskId) {
         db.collection('tasks').doc(taskId).delete()
             .then(() => {
@@ -364,6 +386,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
+    // Obtener configuración del usuario desde Firestore
     function getUserSettings() {
         const user = auth.currentUser;
         const userSettingsRef = db.collection('userSettings').doc(user.uid);
@@ -380,6 +403,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Evento al enviar el formulario para guardar una tarea
     taskForm.addEventListener('submit', function(e) {
         e.preventDefault();
         const taskText = taskInput.value;
@@ -389,6 +413,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Monitorear cambios en la autenticación del usuario
     auth.onAuthStateChanged(user => {
         if (user) {
             console.log("User logged in:", user);
@@ -403,6 +428,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Cargar configuración de la interfaz desde localStorage
     function loadSettings() {
         const selectedTheme = localStorage.getItem('selectedTheme');
         const savedName = localStorage.getItem('listName');
