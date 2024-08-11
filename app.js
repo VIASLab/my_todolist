@@ -1,21 +1,17 @@
-import { initializeApp } from "firebase/app";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
-import { getFirestore, collection, addDoc, query, where, onSnapshot, orderBy, doc, deleteDoc, updateDoc, getDoc, setDoc } from "firebase/firestore";
-
-// Configuración de Firebase usando variables de entorno
+// Configuración de Firebase
 const firebaseConfig = {
-    apiKey: import.meta.env.VITE_API_KEY,
-    authDomain: import.meta.env.VITE_AUTH_DOMAIN,
-    projectId: import.meta.env.VITE_PROJECT_ID,
-    storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
-    messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
-    appId: import.meta.env.VITE_APP_ID
+    apiKey: "TU_API_KEY",
+    authDomain: "TU_AUTH_DOMAIN",
+    projectId: "TU_PROJECT_ID",
+    storageBucket: "TU_STORAGE_BUCKET",
+    messagingSenderId: "TU_MESSAGING_SENDER_ID",
+    appId: "TU_APP_ID"
 };
 
 // Inicializa Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 document.addEventListener('DOMContentLoaded', function() {
     const taskForm = document.getElementById('task-form');
@@ -57,8 +53,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const newName = listNameInput.value;
 
         if (auth.currentUser) {
-            const userSettingsRef = doc(db, 'userSettings', auth.currentUser.uid);
-            setDoc(userSettingsRef, {
+            const userSettingsRef = db.collection('userSettings').doc(auth.currentUser.uid);
+            userSettingsRef.set({
                 selectedTheme,
                 listName: newName
             }).then(() => {
@@ -78,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     logoutBtn.addEventListener('click', () => {
-        signOut(auth).then(() => {
+        auth.signOut().then(() => {
             console.log("User logged out");
             document.getElementById('login-container').style.display = 'block';
             document.querySelector('.container').style.display = 'none';
@@ -110,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        signInWithEmailAndPassword(auth, email, password)
+        auth.signInWithEmailAndPassword(email, password)
             .then(userCredential => {
                 console.log("Logged in:", userCredential.user);
                 loadLists();
@@ -136,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        createUserWithEmailAndPassword(auth, email, password)
+        auth.createUserWithEmailAndPassword(email, password)
             .then(userCredential => {
                 console.log("Registered:", userCredential.user);
                 loadLists();
@@ -150,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function createList(name) {
         const user = auth.currentUser;
-        addDoc(collection(db, 'lists'), {
+        db.collection('lists').add({
             name: name,
             userId: user.uid,
             createdAt: new Date()
@@ -164,8 +160,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function loadLists() {
         const user = auth.currentUser;
-        const q = query(collection(db, 'lists'), where('userId', '==', user.uid), orderBy('createdAt', 'asc'));
-        onSnapshot(q, snapshot => {
+        const q = db.collection('lists')
+                    .where('userId', '==', user.uid)
+                    .orderBy('createdAt', 'asc');
+        q.onSnapshot(snapshot => {
             const lists = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             renderLists(lists);
         }, error => {
@@ -193,7 +191,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function saveTask(task) {
         const user = auth.currentUser;
-        addDoc(collection(db, 'tasks'), {
+        db.collection('tasks').add({
             userId: user.uid,
             listId: currentListId,
             task: task,
@@ -209,8 +207,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function getTasks(listId) {
         const user = auth.currentUser;
-        const q = query(collection(db, 'tasks'), where('userId', '==', user.uid), where('listId', '==', listId), orderBy('order', 'asc'));
-        onSnapshot(q, snapshot => {
+        const q = db.collection('tasks')
+                    .where('userId', '==', user.uid)
+                    .where('listId', '==', listId)
+                    .orderBy('order', 'asc');
+        q.onSnapshot(snapshot => {
             const tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             renderTasks(tasks);
             checkAllTasksCompleted(tasks);
@@ -295,8 +296,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const allTasks = taskList.querySelectorAll('li');
         allTasks.forEach((taskItem, index) => {
             const taskId = taskItem.dataset.id;
-            const taskDoc = doc(db, 'tasks', taskId);
-            updateDoc(taskDoc, { order: index }).then(() => {
+            const taskDoc = db.collection('tasks').doc(taskId);
+            taskDoc.update({ order: index }).then(() => {
                 console.log("Task order updated!");
             }).catch(error => {
                 console.error("Error updating task order:", error);
@@ -312,8 +313,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function launchConfetti() {
-        var duration = 5 * 1000;
-        var end = Date.now() + duration;
+        const duration = 5 * 1000;
+        const end = Date.now() + duration;
 
         (function frame() {
             confetti({
@@ -336,8 +337,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateTaskName(taskId, newName) {
-        const taskDoc = doc(db, 'tasks', taskId);
-        updateDoc(taskDoc, { task: newName }).then(() => {
+        const taskDoc = db.collection('tasks').doc(taskId);
+        taskDoc.update({ task: newName }).then(() => {
             console.log("Task name updated!");
         }).catch(error => {
             console.error("Error updating task name:", error);
@@ -345,8 +346,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateTaskStatus(taskId, completed) {
-        const taskDoc = doc(db, 'tasks', taskId);
-        updateDoc(taskDoc, { completed: completed }).then(() => {
+        const taskDoc = db.collection('tasks').doc(taskId);
+        taskDoc.update({ completed: completed }).then(() => {
             console.log("Task status updated!");
         }).catch(error => {
             console.error("Error updating task status:", error);
@@ -354,7 +355,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function deleteTask(taskId) {
-        deleteDoc(doc(db, 'tasks', taskId))
+        db.collection('tasks').doc(taskId).delete()
             .then(() => {
                 console.log("Task deleted!");
             })
@@ -365,8 +366,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function getUserSettings() {
         const user = auth.currentUser;
-        const userSettingsRef = doc(db, 'userSettings', user.uid);
-        getDoc(userSettingsRef).then(docSnap => {
+        const userSettingsRef = db.collection('userSettings').doc(user.uid);
+        userSettingsRef.get().then(docSnap => {
             if (docSnap.exists()) {
                 const settings = docSnap.data();
                 applyTheme(settings.selectedTheme);
@@ -388,7 +389,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    onAuthStateChanged(auth, user => {
+    auth.onAuthStateChanged(user => {
         if (user) {
             console.log("User logged in:", user);
             document.getElementById('login-container').style.display = 'none';
